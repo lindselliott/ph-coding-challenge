@@ -7,9 +7,6 @@ import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
-# Global variable to store the DICOM data
-dicom_data = None
-
 # Recursive function to find the tag
 def find_tag(tag, ds, indent=""):
     # Check if the tag is in the dataset and print the result
@@ -41,7 +38,7 @@ def convert_to_png(ds):
 @app.route('/')
 def home():
     # Path to DICOM file
-    path = "test_files/XRAY/DICOMDIR"
+    path = "test_files/Class_3_malocclusion/DICOMDIR"
 
     # Get the DICOM tag requested in the query parameter 'tag'
     tag = request.args.get('tag')
@@ -58,6 +55,9 @@ def home():
 
         if value == -1:
             return f"Tag not found in DICOM file: {tag}", 201
+        
+        # new_image = dicom_data.pixel_array.astype(float)
+        # print(new_image)
 
         # if 'PixelData' in dicom_data:
         #     print("Pixel data found.")
