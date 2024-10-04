@@ -24,12 +24,17 @@ def find_tag(tag, ds, indent=""):
                     return result
     return -1
 
-def convert_to_png(ds):
-    if 'PixelData' not in ds:
-        print("This DICOM file does not contain image data.")
-        return
-    
-    pixel_array = ds.pixel_array
+def convert_to_png(dicom_data):
+    if 'PixelData' in dicom_data:
+        print("Pixel data found.")
+    else:
+        print("Pixel data not found in this DICOM file.")
+
+    # new_image = dicom_data.pixel_array.astype(float)
+    # print(new_image)
+
+    # plt.imshow(dicom_data.pixel_array, cmap=plt.cm.gray)
+    # plt.show()
 
 
 @app.route('/')
@@ -42,27 +47,18 @@ def home():
 
     # Read DICOM dataset
     dicom_data = pydicom.dcmread(path)
-    # print (dicom_data)
 
     try:
-        # Try to convert the tag into an integer (DICOM tags are integers)
-        tag_int = int(tag, 16)  # Tags are often in hexadecimal
+        # Convert the tag into an integer (DICOM tags are integers)
+        tag_int = int(tag, 16)
         value = find_tag(tag_int, dicom_data, indent="")
         # print(value)   
 
         if value == -1:
             return f"Tag not found in DICOM file: {tag}", 201
         
-        # new_image = dicom_data.pixel_array.astype(float)
-        # print(new_image)
-
-        # if 'PixelData' in dicom_data:
-        #     print("Pixel data found.")
-        # else:
-        #     print("Pixel data not found in this DICOM file.")
-
-        # plt.imshow(dicom_data.pixel_array, cmap=plt.cm.gray)
-        # plt.show()   
+        # commenting this out as I was not able to test a DICOM with PixelData
+        # convert_to_png(dicom_data)
 
     except Exception as e:
         return f"Error reading DICOM file: {e}", 400
