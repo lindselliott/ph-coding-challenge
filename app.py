@@ -1,8 +1,5 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 import pydicom
-from pydicom.data import get_testdata_file
-from pydicom.fileset import FileSet
-import os
 import matplotlib.pyplot as plt
 
 app = Flask(__name__)
@@ -38,20 +35,20 @@ def convert_to_png(ds):
 @app.route('/')
 def home():
     # Path to DICOM file
-    path = "test_files/Class_3_malocclusion/DICOMDIR"
+    path = "test_files/XRAY/DICOMDIR"
 
     # Get the DICOM tag requested in the query parameter 'tag'
     tag = request.args.get('tag')
 
     # Read DICOM dataset
     dicom_data = pydicom.dcmread(path)
-    print (dicom_data)
+    # print (dicom_data)
 
     try:
         # Try to convert the tag into an integer (DICOM tags are integers)
         tag_int = int(tag, 16)  # Tags are often in hexadecimal
         value = find_tag(tag_int, dicom_data, indent="")
-        print(value)   
+        # print(value)   
 
         if value == -1:
             return f"Tag not found in DICOM file: {tag}", 201
