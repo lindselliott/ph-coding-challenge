@@ -3,12 +3,14 @@ import pydicom
 from pydicom.data import get_testdata_file
 from pydicom.fileset import FileSet
 import os
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
 # Global variable to store the DICOM data
 dicom_data = None
 
+# Recursive function to find the tag
 def find_tag(tag, ds, indent=""):
     # Check if the tag is in the dataset and print the result
     if tag in ds:
@@ -28,6 +30,14 @@ def find_tag(tag, ds, indent=""):
                     return result
     return -1
 
+def convert_to_png(ds):
+    if 'PixelData' not in ds:
+        print("This DICOM file does not contain image data.")
+        return
+    
+    pixel_array = ds.pixel_array
+
+
 @app.route('/')
 def home():
     # Path to DICOM file
@@ -36,7 +46,7 @@ def home():
     # Get the DICOM tag requested in the query parameter 'tag'
     tag = request.args.get('tag')
 
-    # A File-set can be loaded from the path to its DICOMDIR dataset
+    # Read DICOM dataset
     dicom_data = pydicom.dcmread(path)
     print (dicom_data)
 
@@ -44,12 +54,24 @@ def home():
         # Try to convert the tag into an integer (DICOM tags are integers)
         tag_int = int(tag, 16)  # Tags are often in hexadecimal
         value = find_tag(tag_int, dicom_data, indent="")
-        print(value)        
+        print(value)   
+
+        if value == -1:
+            return f"Tag not found in DICOM file: {tag}", 201
+
+        # if 'PixelData' in dicom_data:
+        #     print("Pixel data found.")
+        # else:
+        #     print("Pixel data not found in this DICOM file.")
+
+        # plt.imshow(dicom_data.pixel_array, cmap=plt.cm.gray)
+        # plt.show()   
 
     except Exception as e:
-                return f"Error reading DICOM file: {e}", 400
+        return f"Error reading DICOM file: {e}", 400
    
-    return "Hello, Flask!"
+    # This doesnt have name in it so wondering if that is needed
+    return value.to_json()
 
 
 if __name__ == '__main__':
